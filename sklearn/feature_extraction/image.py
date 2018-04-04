@@ -432,12 +432,9 @@ def reconstruct_from_patches_2d(patches, image_size):
         img[i:i + p_h, j:j + p_w] += p
     # generate an overlap count map directly, this is fast
     Y, X = np.ogrid[0:i_h, 0:i_w]
-    x_h = min(p_w, i_w - p_w)
-    y_h = min(p_h, i_h - p_h)
-    if x_h == i_w - p_w:
-        x_h = x_h + 1
-    if y_h == i_h - p_h:
-        y_h - y_h + 1
+    x_h = min(p_w, i_w - p_w + 1)
+    y_h = min(p_h, i_h - p_h + 1)
+
     overlap_cnt = ((np.minimum(np.minimum(X+1,x_h), np.minimum(i_w-X,x_h)))
                   *(np.minimum(np.minimum(Y+1,y_h), np.minimum(i_h-Y,y_h))))
     return img/overlap_cnt
