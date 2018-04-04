@@ -430,14 +430,13 @@ def reconstruct_from_patches_2d(patches, image_size):
     n_w = i_w - p_w + 1
     for p, (i, j) in zip(patches, product(range(n_h), range(n_w))):
         img[i:i + p_h, j:j + p_w] += p
-
-    for i in range(i_h):
-        for j in range(i_w):
-            # divide by the amount of overlap
-            # XXX: is this the most efficient way? memory-wise yes, cpu wise?
-            img[i, j] /= float(min(i + 1, p_h, i_h - i) *
-                               min(j + 1, p_w, i_w - j))
-    return img
+    # generate an overlap count map directly, this is fast
+    Y, X = np.ogrid[0:i_h, 0:i_w]
+    x_h = min(p_w, i_w - p_w)
+    y_h = min(p_h, i_h - p_h)
+    overlap_cnt = ((np.minimum(np.minimum(X+1,x_h), np.minimum(i_w-X,x_h)))
+                  *(np.minimum(np.minimum(Y+1,y_h), np.minimum(i_h-Y,y_h))))
+    return img/overlap_cnt
 
 
 class PatchExtractor(BaseEstimator):
